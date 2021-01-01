@@ -3,7 +3,7 @@ export PYTHONPATH := $(PWD)/tools/nrfutil:$(PWD)/tools/intelhex:$(PYTHONPATH)
 PYTHON ?= python3
 PYTEST ?= pytest-3
 
-all : bootloader reloader micropython
+all : wasp/main.py bootloader reloader micropython
 
 # If BOARD is undefined then set it up so that expanding it issues an
 # error. That ensures that rules that expand BOARD will be automatically
@@ -17,6 +17,10 @@ endif
 BOARD ?= $(error Please set BOARD=)
 VERSION ?= $(patsubst v%,%,$(shell git describe --tags))
 
+wasp/main.py : VER=$(shell git log -1 --pretty=format:"%H")
+wasp/main.py : wasp/main.in
+	sed 's/"INSERT VERSION HERE"/"$(VER)"/' $< >$@
+	
 clean :
 	$(RM) -r \
 		bootloader/_build-$(BOARD)_nrf52832 \
